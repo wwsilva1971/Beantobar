@@ -34,12 +34,20 @@
                 </div>
                 <h1 class="font-bold text-lg tracking-tight text-slate-800">Cocoa Inspector</h1>
             </div>
-            <button id="btnExport" class="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg transition-colors shadow-sm font-medium text-sm flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Exportar JSON
-            </button>
+            <div class="flex gap-2">
+                <button id="btnEmail" class="bg-amber-100 hover:bg-amber-200 text-amber-900 px-4 py-2 rounded-lg transition-colors shadow-sm font-medium text-sm flex items-center gap-2 border border-amber-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    E-mail
+                </button>
+                <button id="btnExport" class="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg transition-colors shadow-sm font-medium text-sm flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    JSON
+                </button>
+            </div>
         </div>
     </header>
 
@@ -191,7 +199,8 @@
             fermentationIndex: document.getElementById('fermentationIndex'),
             statusBadge: document.getElementById('statusBadge'),
             notes: document.getElementById('notes'),
-            btnExport: document.getElementById('btnExport')
+            btnExport: document.getElementById('btnExport'),
+            btnEmail: document.getElementById('btnEmail')
         };
 
         // Functions
@@ -268,36 +277,71 @@
             }
         };
 
-        function exportData() {
-            const data = {
-                metadata: {
-                    software: "Cocoa Inspector Vanilla",
-                    version: "1.0",
-                    timestamp: new Date().toISOString()
+        function gatherData() {
+            return {
+                batch_id: elements.batch.value || "S/ID",
+                provider: elements.origin.value || "S/Origem",
+                moisture: parseFloat(elements.moisture.value) || 0,
+                notes: elements.notes.value || "Sem observações.",
+                cut_test_data: {
+                    ...counters,
+                    totalSamples: counters.well + counters.violet + counters.slaty + counters.mouldy,
+                    fermentationIndex: elements.fermentationIndex.innerText,
+                    status: elements.statusBadge.innerText
                 },
-                inspection: {
-                    origin: elements.origin.value,
-                    batchId: elements.batch.value,
-                    moisture: parseFloat(elements.moisture.value),
-                    beanCount: {
-                        totalWeight: parseFloat(elements.totalWeight.value),
-                        quantity: parseInt(elements.beanQty.value),
-                        avgWeight: parseFloat(elements.totalWeight.value) / parseFloat(elements.beanQty.value)
-                    },
-                    cutTest: {
-                        ...counters,
-                        totalSamples: counters.well + counters.violet + counters.slaty + counters.mouldy,
-                        fermentationIndex: parseFloat(elements.fermentationIndex.innerText)
-                    },
-                    notes: elements.notes.value
+                beanCount: {
+                    avgWeight: elements.avgWeightDisplay.innerText
                 }
             };
+        }
 
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        function sendEmail() {
+            const data = gatherData();
+            const subject = encodeURIComponent(`Laudo de Inspeção - Lote: ${data.batch_id}`);
+            const body = encodeURIComponent(`
+RELATÓRIO DE QUALIDADE - BEANTRACE
+----------------------------------
+Lote: ${data.batch_id}
+Fornecedor: ${data.provider}
+Umidade: ${data.moisture}%
+Peso Médio da Amêndoa: ${data.beanCount.avgWeight}
+
+TESTE DE CORTE
+----------------------------------
+Índice de Fermentação: ${data.cut_test_data.fermentationIndex} (${data.cut_test_data.status})
+Total Amostras: ${data.cut_test_data.totalSamples}
+
+Defeitos e Classificação:
+- Bem Fermentadas: ${data.cut_test_data.well}
+- Parciais/Violetas: ${data.cut_test_data.violet}
+- Ardósias: ${data.cut_test_data.slaty}
+- Mofadas/Podres: ${data.cut_test_data.mouldy}
+
+Observações e Notas Sensoriais:
+${data.notes}
+
+Gerado em: ${new Date().toLocaleString()}
+            `.trim());
+            
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+
+        function exportData() {
+            const data = gatherData();
+            const fullData = {
+                metadata: {
+                    software: "Cocoa Inspector Vanilla",
+                    version: "1.1",
+                    timestamp: new Date().toISOString()
+                },
+                inspection: data
+            };
+
+            const blob = new Blob([JSON.stringify(fullData, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Inspection-${data.inspection.batchId || 'unnamed'}.json`;
+            a.download = `Inspection-${data.batch_id}.json`;
             a.click();
             URL.revokeObjectURL(url);
         }
@@ -308,6 +352,7 @@
         });
 
         elements.btnExport.addEventListener('click', exportData);
+        elements.btnEmail.addEventListener('click', sendEmail);
 
         // Initial Run
         updateCalculations();
