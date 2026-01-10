@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -5,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cocoa Inspector - Bean-to-Bar</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -18,6 +20,9 @@
         }
         .counter-btn:active {
             transform: scale(0.95);
+        }
+        .btn-primary-gradient {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
         }
     </style>
 </head>
@@ -35,17 +40,17 @@
                 <h1 class="font-bold text-lg tracking-tight text-slate-800">Cocoa Inspector</h1>
             </div>
             <div class="flex gap-2">
-                <button id="btnEmail" class="bg-amber-100 hover:bg-amber-200 text-amber-900 px-4 py-2 rounded-lg transition-colors shadow-sm font-medium text-sm flex items-center gap-2 border border-amber-200">
+                <button id="btnEmail" title="Enviar por E-mail" class="bg-amber-100 hover:bg-amber-200 text-amber-900 px-3 py-2 rounded-lg transition-colors shadow-sm font-medium text-sm flex items-center gap-2 border border-amber-200">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
-                    E-mail
+                    <span class="hidden sm:inline">E-mail</span>
                 </button>
-                <button id="btnExport" class="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg transition-colors shadow-sm font-medium text-sm flex items-center gap-2">
+                <button id="btnExport" title="Exportar JSON" class="bg-slate-700 hover:bg-slate-800 text-white px-3 py-2 rounded-lg transition-colors shadow-sm font-medium text-sm flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
-                    JSON
+                    <span class="hidden sm:inline">JSON</span>
                 </button>
             </div>
         </div>
@@ -117,30 +122,25 @@
                 </div>
             </div>
 
-            <!-- Grid de Contadores Ergonômicos -->
             <div class="grid grid-cols-2 gap-4">
-                <!-- Bem Fermentadas -->
                 <button onclick="changeCounter('well', 1)" class="counter-btn relative flex flex-col items-center justify-center p-6 rounded-3xl bg-emerald-50 border-2 border-emerald-100 hover:border-emerald-500 transition-all text-emerald-900">
                     <span class="text-xs font-black uppercase mb-1">Bem Fermentadas</span>
                     <span id="count-well" class="text-4xl font-black">0</span>
                     <span class="absolute top-2 right-3 text-[10px] font-bold opacity-50">CLIQUE +1</span>
                 </button>
 
-                <!-- Parcialmente Fermentadas / Violetas -->
                 <button onclick="changeCounter('violet', 1)" class="counter-btn relative flex flex-col items-center justify-center p-6 rounded-3xl bg-purple-50 border-2 border-purple-100 hover:border-purple-500 transition-all text-purple-900">
                     <span class="text-xs font-black uppercase mb-1">Parciais / Violetas</span>
                     <span id="count-violet" class="text-4xl font-black">0</span>
                     <span class="absolute top-2 right-3 text-[10px] font-bold opacity-50">CLIQUE +1</span>
                 </button>
 
-                <!-- Ardósia -->
                 <button onclick="changeCounter('slaty', 1)" class="counter-btn relative flex flex-col items-center justify-center p-6 rounded-3xl bg-slate-100 border-2 border-slate-200 hover:border-slate-500 transition-all text-slate-900">
                     <span class="text-xs font-black uppercase mb-1">Ardósia (Slaty)</span>
                     <span id="count-slaty" class="text-4xl font-black">0</span>
                     <span class="absolute top-2 right-3 text-[10px] font-bold opacity-50">CLIQUE +1</span>
                 </button>
 
-                <!-- Mofadas / Defeitos -->
                 <button onclick="changeCounter('mouldy', 1)" class="counter-btn relative flex flex-col items-center justify-center p-6 rounded-3xl bg-rose-50 border-2 border-rose-100 hover:border-rose-500 transition-all text-rose-900">
                     <span class="text-xs font-black uppercase mb-1">Mofadas / Podres</span>
                     <span id="count-mouldy" class="text-4xl font-black">0</span>
@@ -148,7 +148,6 @@
                 </button>
             </div>
 
-            <!-- Botão de Reset Sutil -->
             <div class="mt-4 flex justify-end">
                 <button onclick="resetCounters()" class="text-slate-400 hover:text-rose-500 text-xs font-bold uppercase flex items-center gap-1 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -159,7 +158,7 @@
             </div>
         </section>
 
-        <!-- Resultados -->
+        <!-- Resultados e Notas -->
         <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center justify-center text-center">
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Índice de Fermentação</span>
@@ -174,6 +173,16 @@
                 <textarea id="notes" rows="4" placeholder="Aromas, uniformidade, cor da casca..." class="w-full border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-amber-500 outline-none resize-none bg-slate-50 text-sm"></textarea>
             </div>
         </section>
+
+        <!-- Ações do Banco de Dados -->
+        <div class="flex flex-col gap-3 pt-4">
+            <button id="btnSaveDB" class="w-full btn-primary-gradient hover:opacity-90 text-white font-bold py-4 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 transform active:scale-[0.98]">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                </svg>
+                Salvar no BeanTrace
+            </button>
+        </div>
 
     </main>
 
@@ -200,18 +209,28 @@
             statusBadge: document.getElementById('statusBadge'),
             notes: document.getElementById('notes'),
             btnExport: document.getElementById('btnExport'),
-            btnEmail: document.getElementById('btnEmail')
+            btnEmail: document.getElementById('btnEmail'),
+            btnSaveDB: document.getElementById('btnSaveDB')
         };
+
+        // Supabase Configuration
+        // Substituto pelos seus dados reais
+        const SUPABASE_URL = 'SUA_URL_DO_SUPABASE'; 
+        const SUPABASE_KEY = 'SUA_ANON_KEY_DO_SUPABASE';
+        let supabaseClient = null;
+
+        // Tenta inicializar se as chaves forem providenciadas
+        if (SUPABASE_URL !== 'SUA_URL_DO_SUPABASE' && typeof supabase !== 'undefined') {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
 
         // Functions
         function updateCalculations() {
-            // Bean Count
             const weight = parseFloat(elements.totalWeight.value) || 0;
             const qty = parseInt(elements.beanQty.value) || 0;
             const avg = qty > 0 ? (weight / qty).toFixed(2) : "0.00";
             elements.avgWeightDisplay.innerText = `${avg} g`;
 
-            // Moisture Visual Alert
             const moist = parseFloat(elements.moisture.value) || 0;
             if (moist > 7.5) {
                 elements.moisture.classList.add('border-rose-300', 'bg-rose-50', 'text-rose-700');
@@ -221,18 +240,15 @@
                 elements.moistureAlert.classList.add('hidden');
             }
 
-            // Cut Test Metrics
             const total = counters.well + counters.violet + counters.slaty + counters.mouldy;
             elements.cutTestTotal.innerText = total;
 
-            // Formula: ((Well * 1) + (Violet * 0.5)) / Total
             let index = 0;
             if (total > 0) {
                 index = ((counters.well * 1) + (counters.violet * 0.5)) / total;
             }
             elements.fermentationIndex.innerText = index.toFixed(2);
 
-            // Status Badge
             updateStatusBadge(index, total);
         }
 
@@ -246,16 +262,9 @@
             let label = "Pobre";
             let colorClass = "bg-rose-100 text-rose-700";
 
-            if (index >= 0.8) {
-                label = "Excelente";
-                colorClass = "bg-emerald-100 text-emerald-700";
-            } else if (index >= 0.6) {
-                label = "Boa";
-                colorClass = "bg-blue-100 text-blue-700";
-            } else if (index >= 0.4) {
-                label = "Média";
-                colorClass = "bg-amber-100 text-amber-700";
-            }
+            if (index >= 0.8) { label = "Excelente"; colorClass = "bg-emerald-100 text-emerald-700"; }
+            else if (index >= 0.6) { label = "Boa"; colorClass = "bg-blue-100 text-blue-700"; }
+            else if (index >= 0.4) { label = "Média"; colorClass = "bg-amber-100 text-amber-700"; }
 
             elements.statusBadge.innerText = label;
             elements.statusBadge.className = `mt-4 px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest ${colorClass}`;
@@ -282,17 +291,63 @@
                 batch_id: elements.batch.value || "S/ID",
                 provider: elements.origin.value || "S/Origem",
                 moisture: parseFloat(elements.moisture.value) || 0,
+                total_weight: parseFloat(elements.totalWeight.value) || 0,
+                bean_qty: parseInt(elements.beanQty.value) || 0,
                 notes: elements.notes.value || "Sem observações.",
                 cut_test_data: {
-                    ...counters,
+                    well: counters.well,
+                    violet: counters.violet,
+                    slaty: counters.slaty,
+                    mouldy: counters.mouldy,
                     totalSamples: counters.well + counters.violet + counters.slaty + counters.mouldy,
-                    fermentationIndex: elements.fermentationIndex.innerText,
+                    fermentationIndex: parseFloat(elements.fermentationIndex.innerText),
                     status: elements.statusBadge.innerText
                 },
                 beanCount: {
                     avgWeight: elements.avgWeightDisplay.innerText
                 }
             };
+        }
+
+        async function saveToDatabase() {
+            if (!supabaseClient) {
+                alert("❌ Erro: Configuração do Supabase incompleta (URL ou Key faltantes no código).");
+                return;
+            }
+
+            const btn = elements.btnSaveDB;
+            const originalText = btn.innerHTML;
+
+            try {
+                btn.innerHTML = "<span>⌛ Salvando...</span>";
+                btn.disabled = true;
+
+                const data = gatherData();
+                const dataToSave = {
+                    batch_id: data.batch_id,
+                    provider: data.provider,
+                    moisture: data.moisture,
+                    total_weight: data.total_weight,
+                    bean_qty: data.bean_qty,
+                    cut_test_data: data.cut_test_data,
+                    notes: data.notes,
+                    created_at: new Date().toISOString()
+                };
+
+                const { error } = await supabaseClient
+                    .from('inspections')
+                    .insert([dataToSave]);
+
+                if (error) throw error;
+
+                alert("✅ Inspeção salva com sucesso no BeanTrace!");
+            } catch (error) {
+                console.error('Erro:', error);
+                alert("❌ Erro ao salvar: " + error.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
 
         function sendEmail() {
@@ -317,27 +372,17 @@ Defeitos e Classificação:
 - Ardósias: ${data.cut_test_data.slaty}
 - Mofadas/Podres: ${data.cut_test_data.mouldy}
 
-Observações e Notas Sensoriais:
+Observações:
 ${data.notes}
 
 Gerado em: ${new Date().toLocaleString()}
             `.trim());
-            
             window.location.href = `mailto:?subject=${subject}&body=${body}`;
         }
 
         function exportData() {
             const data = gatherData();
-            const fullData = {
-                metadata: {
-                    software: "Cocoa Inspector Vanilla",
-                    version: "1.1",
-                    timestamp: new Date().toISOString()
-                },
-                inspection: data
-            };
-
-            const blob = new Blob([JSON.stringify(fullData, null, 2)], { type: 'application/json' });
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -353,10 +398,10 @@ Gerado em: ${new Date().toLocaleString()}
 
         elements.btnExport.addEventListener('click', exportData);
         elements.btnEmail.addEventListener('click', sendEmail);
+        elements.btnSaveDB.addEventListener('click', saveToDatabase);
 
         // Initial Run
         updateCalculations();
-
     </script>
 </body>
 </html>
