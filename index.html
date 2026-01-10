@@ -32,7 +32,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                     </svg>
                 </div>
-                <h1 class="font-bold text-lg tracking-tight text-slate-800">CoEx Cocoa Inspector</h1>
+                <h1 class="font-bold text-lg tracking-tight text-slate-800">Cocoa Inspector</h1>
             </div>
             <button id="btnExport" class="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2 rounded-lg transition-colors shadow-sm font-medium text-sm flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -216,7 +216,7 @@
             const total = counters.well + counters.violet + counters.slaty + counters.mouldy;
             elements.cutTestTotal.innerText = total;
 
-            // CoEx Formula: ((Well * 1) + (Violet * 0.5)) / Total
+            // Formula: ((Well * 1) + (Violet * 0.5)) / Total
             let index = 0;
             if (total > 0) {
                 index = ((counters.well * 1) + (counters.violet * 0.5)) / total;
@@ -297,7 +297,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `CoEx-Inspection-${data.inspection.batchId || 'unnamed'}.json`;
+            a.download = `Inspection-${data.inspection.batchId || 'unnamed'}.json`;
             a.click();
             URL.revokeObjectURL(url);
         }
