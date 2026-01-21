@@ -3,324 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BeanTrace Dashboard - Qualidade de Cacau</title>
-    <!-- Dependências Externas -->
+    <title>BeanTrace Dashboard | Mahiange</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
-    
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .stat-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
+        .stat-card { transition: transform 0.2s ease; }
+        .stat-card:hover { transform: translateY(-2px); }
         canvas { max-height: 320px !important; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .fade-in { animation: fadeIn 0.5s ease forwards; }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "@google/genai": "https://esm.sh/@google/genai@^1.35.0",
-    "react": "https://esm.sh/react@^19.2.3",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "recharts": "https://esm.sh/recharts@^3.6.0"
-  }
-}
-</script>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen">
 
-    <!-- Navegação -->
     <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
             <div>
                 <h1 class="text-2xl font-black text-slate-800 tracking-tighter">BEAN<span class="text-emerald-600">TRACE</span></h1>
-                <p class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Controle de Qualidade de Amêndoas</p>
+                <p class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Painel de Qualidade Mahiange</p>
             </div>
             <div class="flex gap-3">
-                <button onclick="window.location.reload()" class="p-2.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                </button>
-                <a href="index.html" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-emerald-700 shadow-lg shadow-emerald-100 transition-all flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    Nova Inspeção
+                <a href="beantrace.html" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-emerald-700 transition-all flex items-center gap-2">
+                    <i class="fas fa-plus"></i> Nova Inspeção
                 </a>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+    <main class="max-w-7xl mx-auto px-4 py-10">
         
-        <!-- Cartões de Resumo -->
         <div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-            <div class="stat-card bg-white p-6 rounded-2xl border border-white shadow-sm">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Inspeções</p>
-                <p id="stat-count" class="text-3xl font-black text-slate-800 tracking-tight">--</p>
+            <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Total de Inspeções</p>
+                <p id="stat-count" class="text-3xl font-black text-slate-800">--</p>
             </div>
-            <div class="stat-card bg-white p-6 rounded-2xl border border-white shadow-sm">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Umidade Média</p>
-                <p id="stat-moisture" class="text-3xl font-black text-emerald-600 tracking-tight">--%</p>
+            <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Média de Fermentação</p>
+                <p id="stat-fermentation" class="text-3xl font-black text-amber-600">--%</p>
             </div>
-            <div class="stat-card bg-white p-6 rounded-2xl border border-white shadow-sm">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Fermentação Index</p>
-                <p id="stat-fermentation" class="text-3xl font-black text-amber-600 tracking-tight">--</p>
+            <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Origem mais Frequente</p>
+                <p id="stat-provider" class="text-xl font-black text-slate-700 truncate">--</p>
             </div>
-            <div class="stat-card bg-white p-6 rounded-2xl border border-white shadow-sm">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Top Fornecedor</p>
-                <p id="stat-provider" class="text-xl font-black text-slate-700 truncate tracking-tight">--</p>
-            </div>
-        </div>
-
-        <!-- Seção de Análise e Gráficos -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-            <!-- Gráfico de Tendências -->
-            <div class="lg:col-span-2 bg-white p-8 rounded-3xl border border-slate-200 shadow-sm fade-in">
-                <div class="flex items-center justify-between mb-8">
-                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <span class="w-1.5 h-5 bg-emerald-500 rounded-full"></span>
-                        Tendências de Qualidade (Últimos 12 Lotes)
-                    </h2>
-                </div>
-                <div class="h-[320px] w-full">
-                    <canvas id="qualityChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Painel de IA -->
-            <div class="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl flex flex-col relative overflow-hidden fade-in" style="animation-delay: 0.1s">
-                <div class="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl"></div>
-                <div class="relative z-10 flex flex-col h-full">
-                    <h3 class="text-xl font-black mb-4 flex items-center gap-3 text-emerald-400">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        Análise IA BeanTrace
-                    </h3>
-                    <div id="ai-response" class="flex-grow text-sm text-slate-300 leading-relaxed font-medium overflow-y-auto">
-                        <p class="py-4 opacity-60">Solicite uma análise técnica baseada nos indicadores atuais de umidade e fermentação dos últimos lotes processados.</p>
-                    </div>
-                    <button id="btn-ai" onclick="generateAIInsights()" class="mt-6 w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black transition-all shadow-lg shadow-emerald-900/40 uppercase text-xs tracking-widest disabled:opacity-50">
-                        Gerar Diagnóstico IA
-                    </button>
-                </div>
+             <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Status Geral</p>
+                <p id="stat-status" class="text-xl font-black text-emerald-600 tracking-tight">OPERACIONAL</p>
             </div>
         </div>
 
-        <!-- Histórico de Inspeções -->
-        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden fade-in" style="animation-delay: 0.2s">
-            <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                <h2 class="text-lg font-bold text-slate-800 tracking-tight">Registros Recentes de Inspeção</h2>
+        <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm mb-10">
+            <h2 class="text-lg font-bold text-slate-800 mb-8 flex items-center gap-2">
+                <span class="w-1.5 h-5 bg-emerald-500 rounded-full"></span>
+                Evolução do Índice de Fermentação (Últimos Lotes)
+            </h2>
+            <div class="h-[320px] w-full">
+                <canvas id="qualityChart"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-8 py-6 border-b border-slate-100 bg-slate-50/50">
+                <h2 class="text-lg font-bold text-slate-800">Registros no Banco de Dados</h2>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-left">
+                <table class="w-full text-left text-sm">
                     <thead>
-                        <tr class="bg-slate-50/30">
-                            <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Data</th>
-                            <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Lote</th>
-                            <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Fornecedor</th>
-                            <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Umid. %</th>
-                            <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Ferm. Index</th>
-                            <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                        <tr class="bg-slate-50/30 text-[10px] font-black text-slate-400 uppercase">
+                            <th class="px-8 py-4">Data</th>
+                            <th class="px-8 py-4">Lote</th>
+                            <th class="px-8 py-4">Origem</th>
+                            <th class="px-8 py-4 text-center">Índice</th>
+                            <th class="px-8 py-4">Status</th>
                         </tr>
                     </thead>
                     <tbody id="inspections-table-body" class="divide-y divide-slate-100">
-                        <!-- Linhas injetadas via JavaScript -->
-                    </tbody>
+                        </tbody>
                 </table>
-                <div id="loading-overlay" class="py-20 text-center text-slate-400 font-bold text-xs uppercase tracking-widest animate-pulse">
-                    Sincronizando com Supabase...
+                <div id="loading-overlay" class="py-10 text-center text-slate-400 font-bold animate-pulse">
+                    CONECTANDO AO SUPABASE...
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Script Principal (Vanilla JS) -->
     <script type="module">
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-        import { GoogleGenAI } from 'https://esm.sh/@google/genai@1.3.0';
 
         const SUPABASE_URL = 'https://yutecuapyojobehwjarx.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dGVjdWFweW9qb2JlaHdqYXJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwMDM4NTcsImV4cCI6MjA4MzU3OTg1N30.1W6bPbzyk0xiaQK2bzb2YMfC8Ch4axx8MWqwEXnnXcY';
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let currentInspections = [];
         let chartInstance = null;
 
-        // Inicialização
         async function init() {
-            try {
-                const { data, error } = await supabase
-                    .from('inspections')
-                    .select('*')
-                    .order('created_at', { ascending: false });
+            const { data, error } = await supabase
+                .from('inspections')
+                .select('*')
+                .order('created_at', { ascending: false });
 
-                if (error) throw error;
-                currentInspections = data || [];
-                
-                document.getElementById('loading-overlay').classList.add('hidden');
-                updateDashboard();
-            } catch (err) {
-                console.error("Erro ao carregar dados:", err);
-                document.getElementById('loading-overlay').innerHTML = "Falha na conexão com o banco.";
+            if (error) {
+                console.error("Erro:", error);
+                return;
             }
+
+            document.getElementById('loading-overlay').classList.add('hidden');
+            renderDashboard(data);
         }
 
-        // Atualiza todos os elementos visuais
-        function updateDashboard() {
-            if (currentInspections.length === 0) return;
+        function renderDashboard(data) {
+            if (!data.length) return;
 
-            // Estatísticas
-            const count = currentInspections.length;
-            const avgMoisture = currentInspections.reduce((a, b) => a + Number(b.moisture), 0) / count;
-            const avgFerment = currentInspections.reduce((a, b) => a + Number(b.cut_test_data?.fermentationIndex || 0), 0) / count;
-            
-            const providers = currentInspections.reduce((acc, curr) => {
-                acc[curr.provider] = (acc[curr.provider] || 0) + 1;
-                return acc;
-            }, {});
-            const topProvider = Object.keys(providers).reduce((a, b) => providers[a] > providers[b] ? a : b);
+            // 1. Estatísticas Rápidas
+            const avgFerment = data.reduce((a, b) => a + (b.fermentation_index || 0), 0) / data.length;
+            const providers = data.map(d => d.origin);
+            const topProvider = providers.sort((a,b) => providers.filter(v => v===a).length - providers.filter(v => v===b).length).pop();
 
-            document.getElementById('stat-count').innerText = count;
-            document.getElementById('stat-moisture').innerText = `${avgMoisture.toFixed(1)}%`;
-            document.getElementById('stat-fermentation').innerText = avgFerment.toFixed(1);
-            document.getElementById('stat-provider').innerText = topProvider;
+            document.getElementById('stat-count').innerText = data.length;
+            document.getElementById('stat-fermentation').innerText = Math.round(avgFerment) + '%';
+            document.getElementById('stat-provider').innerText = topProvider || "N/A";
 
-            // Tabela
+            // 2. Preencher Tabela
             const tbody = document.getElementById('inspections-table-body');
-            tbody.innerHTML = currentInspections.slice(0, 15).map(ins => {
-                const isBad = ins.moisture > 8 || (ins.cut_test_data?.fermentationIndex < 65);
-                return `
-                    <tr class="hover:bg-slate-50 transition-colors group">
-                        <td class="px-8 py-5 text-sm font-medium text-slate-400">
-                            ${new Date(ins.created_at).toLocaleDateString('pt-BR')}
-                        </td>
-                        <td class="px-8 py-5">
-                            <span class="font-mono text-xs font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded">
-                                ${ins.batch_id}
-                            </span>
-                        </td>
-                        <td class="px-8 py-5 text-sm font-bold text-slate-700">${ins.provider}</td>
-                        <td class="px-8 py-5 text-sm font-black text-center ${ins.moisture > 8 ? 'text-red-500' : 'text-emerald-600'}">
-                            ${ins.moisture}%
-                        </td>
-                        <td class="px-8 py-5 text-sm font-black text-center text-slate-800">
-                            ${ins.cut_test_data?.fermentationIndex || '--'}
-                        </td>
-                        <td class="px-8 py-5">
-                            <span class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tight ${
-                                isBad ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
-                            }">
-                                ${isBad ? '⚠️ Monitorar' : '✓ Aprovado'}
-                            </span>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+            tbody.innerHTML = data.slice(0, 10).map(ins => `
+                <tr class="hover:bg-slate-50">
+                    <td class="px-8 py-5 text-slate-500">${new Date(ins.created_at).toLocaleDateString()}</td>
+                    <td class="px-8 py-5 font-mono font-bold">${ins.batch_id}</td>
+                    <td class="px-8 py-5 font-bold">${ins.origin}</td>
+                    <td class="px-8 py-5 text-center font-black text-emerald-600">${ins.fermentation_index}%</td>
+                    <td class="px-8 py-5">
+                        <span class="px-3 py-1 rounded-full text-[10px] font-bold ${ins.fermentation_index >= 70 ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                            ${ins.fermentation_index >= 70 ? 'QUALIDADE A' : 'MONITORAR'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
 
-            renderChart();
-        }
-
-        // Renderiza o Gráfico (Chart.js)
-        function renderChart() {
+            // 3. Gráfico de Linha
             const ctx = document.getElementById('qualityChart').getContext('2d');
-            const dataReversed = [...currentInspections].reverse().slice(-12);
+            const last10 = [...data].reverse().slice(-10);
             
-            const labels = dataReversed.map(d => new Date(d.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }));
-            const umidData = dataReversed.map(d => Number(d.moisture));
-            const fermData = dataReversed.map(d => Number(d.cut_test_data?.fermentationIndex || 0));
-
             if (chartInstance) chartInstance.destroy();
-
             chartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Umidade %',
-                            data: umidData,
-                            borderColor: '#10b981',
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            borderWidth: 4,
-                            tension: 0.4,
-                            fill: true,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#fff',
-                            pointBorderWidth: 2
-                        },
-                        {
-                            label: 'Fermentação',
-                            data: fermData,
-                            borderColor: '#f59e0b',
-                            borderWidth: 4,
-                            tension: 0.4,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#fff',
-                            pointBorderWidth: 2
-                        }
-                    ]
+                    labels: last10.map(d => d.batch_id),
+                    datasets: [{
+                        label: 'Índice de Fermentação %',
+                        data: last10.map(d => d.fermentation_index),
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 4
+                    }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: true, position: 'top', align: 'end', labels: { usePointStyle: true, font: { weight: 'bold', size: 10 } } }
-                    },
                     scales: {
-                        y: { 
-                            grid: { display: false }, 
-                            border: { display: false }, 
-                            ticks: { font: { size: 10, weight: 'bold' } } 
-                        },
-                        x: { 
-                            grid: { display: false }, 
-                            border: { display: false }, 
-                            ticks: { font: { size: 10, weight: 'bold' } } 
-                        }
+                        y: { beginAtZero: true, max: 100 }
                     }
                 }
             });
         }
 
-        // Análise com IA (Gemini)
-        window.generateAIInsights = async () => {
-            if (currentInspections.length === 0) return;
-
-            const btn = document.getElementById('btn-ai');
-            const box = document.getElementById('ai-response');
-            
-            btn.disabled = true;
-            btn.innerText = "Analisando Dados...";
-            box.innerHTML = `<div class="py-8 text-center animate-pulse text-emerald-300 font-bold text-xs">Processando amêndoas com Gemini...</div>`;
-
-            try {
-                const ai = new GoogleGenAI({ apiKey: "AI_KEY_PLACEHOLDER" }); // process.env.API_KEY é injetado pelo sistema
-                const sample = currentInspections.slice(0, 8).map(i => ({
-                    fornecedor: i.provider,
-                    umidade: i.moisture,
-                    fermentacao: i.cut_test_data?.fermentationIndex
-                }));
-
-                const response = await ai.models.generateContent({
-                    model: 'gemini-3-flash-preview',
-                    contents: `Analise estes 8 lotes de cacau e dê um diagnóstico crítico em Português: ${JSON.stringify(sample)}`,
-                    config: {
-                        systemInstruction: "Você é um mestre chocolateiro e especialista sênior em controle de qualidade de cacau. Seja técnico, direto e profissional.",
-                        temperature: 0.7
-                    }
-                });
-
-                box.innerHTML = `<div class="bg-slate-800/50 p-5 rounded-2xl border border-slate-700 italic leading-relaxed text-emerald-100 font-medium">"${response.text}"</div>`;
-            } catch (err) {
-                console.error("IA Error:", err);
-                box.innerHTML = `<div class="p-4 text-red-400 text-xs">Não foi possível gerar a análise no momento. Tente novamente mais tarde.</div>`;
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Gerar Diagnóstico IA";
-            }
-        };
-
-        // Inicia o app
         init();
     </script>
 </body>
