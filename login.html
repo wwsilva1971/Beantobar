@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Acesso | BeanTrace Mahiange</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-[#fcf9f7] flex items-center justify-center min-h-screen p-4">
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+        <div class="bg-[#8A5B3F] p-8 text-center text-white">
+            <h2 id="form-title" class="text-2xl font-bold">Entrar no BeanTrace</h2>
+            <p id="form-desc" class="opacity-80 text-sm">Identifique-se para continuar</p>
+        </div>
+        
+        <div class="p-8 space-y-4">
+            <input id="email" type="email" placeholder="Seu e-mail" class="w-full p-4 border rounded-xl outline-[#8A5B3F]">
+            <input id="password" type="password" placeholder="Sua senha" class="w-full p-4 border rounded-xl outline-[#8A5B3F]">
+            
+            <button onclick="handleAuth()" id="mainBtn" class="w-full bg-[#8A5B3F] text-white py-4 rounded-xl font-bold hover:bg-[#433633] transition">
+                Entrar
+            </button>
+
+            <div class="flex flex-col gap-2 text-center text-sm">
+                <button onclick="toggleMode()" id="toggleBtn" class="text-[#8A5B3F] font-semibold">Não tem conta? Cadastre-se</button>
+                <button onclick="forgotPassword()" class="text-gray-400 hover:text-red-500 transition">Esqueci minha senha</button>
+            </div>
+
+            <p id="msg" class="text-center text-sm hidden font-semibold p-3 rounded-lg"></p>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://yutecuapyojobehwjarx.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dGVjdWFweW9qb2JlaHdqYXJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwMDM4NTcsImV4cCI6MjA4MzU3OTg1N30.1W6bPbzyk0xiaQK2bzb2YMfC8Ch4axx8MWqwEXnnXcY';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let isSignUp = false;
+
+        function toggleMode() {
+            isSignUp = !isSignUp;
+            document.getElementById('form-title').innerText = isSignUp ? "Criar Nova Conta" : "Entrar no BeanTrace";
+            document.getElementById('mainBtn').innerText = isSignUp ? "Cadastrar" : "Entrar";
+            document.getElementById('toggleBtn').innerText = isSignUp ? "Já tem conta? Faça Login" : "Não tem conta? Cadastre-se";
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const msg = document.getElementById('msg');
+            
+            if (isSignUp) {
+                // CADASTRO
+                const { error } = await supabaseClient.auth.signUp({ email, password });
+                if (error) {
+                    showMsg(error.message, "bg-red-100 text-red-700");
+                } else {
+                    showMsg("Cadastro realizado! Verifique seu e-mail para confirmar.", "bg-green-100 text-green-700");
+                }
+            } else {
+                // LOGIN
+                const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) {
+                    showMsg("Credenciais inválidas.", "bg-red-100 text-red-700");
+                } else {
+                    window.location.href = 'beantrace.html';
+                }
+            }
+        }
+
+        async function forgotPassword() {
+            const email = document.getElementById('email').value;
+            if (!email) return alert("Digite seu e-mail primeiro!");
+
+            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + '/login.html', 
+            });
+
+            if (error) {
+                showMsg(error.message, "bg-red-100 text-red-700");
+            } else {
+                showMsg("Link de recuperação enviado para seu e-mail!", "bg-blue-100 text-blue-700");
+            }
+        }
+
+        function showMsg(text, classes) {
+            const msg = document.getElementById('msg');
+            msg.innerText = text;
+            msg.className = `text-center text-sm p-3 rounded-lg ${classes}`;
+            msg.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
